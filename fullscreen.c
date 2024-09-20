@@ -5,37 +5,36 @@
 #define MIN(x, y) ((x) < (y) ? (x) : (y))
 
 void enable_fullscreen(void) {
-	ALLEGRO_DISPLAY *display = al_get_current_display();
-	ALLEGRO_TRANSFORM t;
-	int width, height;
-	float scale, offset_x, offset_y;
+    ALLEGRO_DISPLAY *display = al_get_current_display();
+    int width, height;
+    float scale_x, scale_y;
+    ALLEGRO_TRANSFORM transform;
 
-	al_set_display_flag(display, ALLEGRO_FULLSCREEN_WINDOW, true);
-	width = al_get_display_width(display);
-	height = al_get_display_height(display);
+    al_set_display_flag(display, ALLEGRO_FULLSCREEN_WINDOW, true);
+    width = al_get_display_width(display);
+    height = al_get_display_height(display);
 
-	scale = MIN(width / 640.0, height / 480.0);
-	offset_x = 0.5 * (width - scale * 640.0);
-	offset_y = 0.5 * (height - scale * 480.0);
-	al_identity_transform(&t);
-	al_scale_transform(&t, scale, scale);
-	al_translate_transform(&t, offset_x, offset_y);
-	al_use_transform(&t);
+    // Calculate scaling factors
+    scale_x = width / 640.0f;
+    scale_y = height / 480.0f;
 
-	al_clear_to_color(al_map_rgb(0, 0, 0));
-	al_flip_display();
-	al_clear_to_color(al_map_rgb(0, 0, 0));
+    // Create a transformation that centers and scales the game
+    al_identity_transform(&transform);
+    al_scale_transform(&transform, scale_x, scale_y);
+    al_translate_transform(&transform, (width - 640 * scale_x) / 2, (height - 480 * scale_y) / 2);
+    al_use_transform(&transform);
 
-	al_set_clipping_rectangle(offset_x + 0.5, offset_y + 0.5,
-			640.0 * scale + 0.5, 480.0 * scale + 0.5);
+    // Clear the screen
+    al_clear_to_color(al_map_rgb(0, 0, 0));
 }
 
 void disable_fullscreen(void) {
-	ALLEGRO_DISPLAY *display = al_get_current_display();
-	ALLEGRO_TRANSFORM t;
-	al_set_display_flag(display, ALLEGRO_FULLSCREEN_WINDOW, false);
-	al_identity_transform(&t);
-	al_use_transform(&t);
+    ALLEGRO_DISPLAY *display = al_get_current_display();
+    ALLEGRO_TRANSFORM transform;
 
-	al_reset_clipping_rectangle();
+    al_set_display_flag(display, ALLEGRO_FULLSCREEN_WINDOW, false);
+    
+    // Reset the transform
+    al_identity_transform(&transform);
+    al_use_transform(&transform);
 }
